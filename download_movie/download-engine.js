@@ -83,6 +83,7 @@ function findMovieAndDownload(client) {
 
 function beginScheduleDownload() {
     console.log('begin a schedule task to download movie. (crawler per twice hour).....');
+    findMovieAndDownload(client);
     let rule = new schedule.RecurrenceRule();
     rule.second = 1;
     rule.minute = 1;

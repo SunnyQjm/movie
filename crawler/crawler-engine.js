@@ -146,6 +146,7 @@ function doCrawler() {
  */
 function beginScheduleCrawler() {
     console.log('begin a schedule task to crawler movie. (crawler per twice hour).....');
+    doCrawler();
     let rule = new schedule.RecurrenceRule();
     rule.second = 1;
     rule.minute = 1;

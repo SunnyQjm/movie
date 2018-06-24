@@ -24,8 +24,11 @@ const Movie = db.defineModel('movies', {
         unique: true,
         defaultValue: ''
     },
+    // failedTime: {
+    //     type: db.INTEGER,
+    //     defaultValue: 0
+    // }
 });
 
-Movie.close = db.close;
 
 module.exports = Movie;

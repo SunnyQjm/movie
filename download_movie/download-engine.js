@@ -1,7 +1,7 @@
 const WebTorrent = require('webtorrent');
 const path = require('path');
 const model = require('../model');
-const async = require('async');
+const schedule = require('node-schedule');        //用户开启定时任务
 
 
 String.prototype.trim = function () {
@@ -13,9 +13,13 @@ let client = new WebTorrent();
 
 let savePath = path.join(__dirname, 'static');
 
-function download(movie) {
+/**
+ * 下载movie对象中的磁力链接，并且在下载完成后将isDownload标志位置1，并写回数据库
+ * @param movie
+ */
+function download(movie, client) {
     let magnet = movie.magnet;
-    if(magnet.trim() === '' || !magnet.startsWith('magnet'))
+    if (magnet.trim() === '' || !magnet.startsWith('magnet'))
         return;
     console.log('add download: ' + magnet);
     client.add(magnet, {
@@ -27,8 +31,8 @@ function download(movie) {
             console.log('progress: ' + (torrent.progress * 100));
         });
 
-        torrent.on('error',  err => {
-           console.log('download error: ' + err);
+        torrent.on('error', err => {
+            console.log('download error: ' + err);
         });
         torrent.on('done', function () {
             console.log('torrent finished downloading');
@@ -55,26 +59,46 @@ function download(movie) {
  * Always listen for the 'error' event.
  */
 client.on('error', err => {
-
+    console.log(err);
 });
 
 
-Movie.findAndCountAll({
-    where: {
-        isDownload: 0,
-        magnet: {
-            $like: 'magnet%'
-        }
-    },
-    limit: 50,
-})
-    .then(result => {
-        result.rows.forEach(movie => {
-            download(movie);
+function findMovieAndDownload(client) {
+    Movie.findAndCountAll({
+        where: {
+            isDownload: 0,
+            magnet: {
+                $like: 'magnet%'
+            }
+        },
+        limit: 50,
+    })
+        .then(result => {
+            result.rows.forEach(movie => {
+                download(movie, client);
+            });
         });
-    });
+}
 
-//
-// download({
-//     magnet: 'magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb_sunflower_1080p_30fps_normal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb_sunflower_1080p_30fps_normal.mp4'
-// });
+
+function beginScheduleDownload() {
+    console.log('begin a schedule task to download movie. (crawler per twice hour).....');
+    let rule = new schedule.RecurrenceRule();
+    rule.second = 1;
+    rule.minute = 1;
+    rule.hour = [0, 4, 8, 12, 16, 20];
+    for (let i = 0; i <= 22; i += 2) {
+        rule.hour.push(i);
+    }
+    schedule.scheduleJob(rule, () => {
+        client.destroy(() => {
+            client = new WebTorrent();
+            findMovieAndDownload(client);
+        })
+    })
+}
+module.exports = {
+    beginScheduleDownload,
+    findMovieAndDownload,
+};
+

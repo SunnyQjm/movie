@@ -22,7 +22,7 @@ function download(movie, client) {
     let magnet = movie.magnet;
     if (magnet.trim() === '' || !magnet.startsWith('magnet'))
         return;
-    console.log('add download: ' + magnet);
+    console.log(new Date() + ': add download ==> ' + magnet);
     client.add(magnet, {
         path: savePath,       //设置下载文件的路径
     }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);

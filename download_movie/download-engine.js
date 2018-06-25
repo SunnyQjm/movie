@@ -42,7 +42,7 @@ function download(movie, client) {
             Movie.update({
                 isDownload: 1,
                 size: file.length,
-                downloadPath: path.join(savePath, file.path),
+                downloadPath: path.join(file.path),
             }, {
                 where: {
                     id: movie.id

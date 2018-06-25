@@ -16,6 +16,7 @@ let savePath = path.join(__dirname, 'static');
 /**
  * 下载movie对象中的磁力链接，并且在下载完成后将isDownload标志位置1，并写回数据库
  * @param movie
+ * @param client
  */
 function download(movie, client) {
     let magnet = movie.magnet;
@@ -27,8 +28,6 @@ function download(movie, client) {
     }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);
 
         torrent.on('download', bytes => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
-            console.log('download speed: ' + (torrent.downloadSpeed / 1024) + ' KB/s');
-            console.log('progress: ' + (torrent.progress * 100));
         });
 
         torrent.on('error', err => {

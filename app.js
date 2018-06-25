@@ -16,8 +16,8 @@ combineMiddleWare(app, __dirname);
 app.use(bodyParser());
 app.use(controller());
 
-app.listen(9748);
-console.log('app started at port 9748...');
+app.listen(4897);
+console.log('app started at port 4897...');
 
 /**
  * 开启定时爬虫的任务

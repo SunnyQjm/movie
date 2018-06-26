@@ -87,9 +87,6 @@ function beginScheduleDownload() {
     rule.second = 1;
     rule.minute = 1;
     rule.hour = [0, 4, 8, 12, 16, 20];
-    for (let i = 0; i <= 22; i += 2) {
-        rule.hour.push(i);
-    }
     schedule.scheduleJob(rule, () => {
         client.destroy(() => {
             client = new WebTorrent();

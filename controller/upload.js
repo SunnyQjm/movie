@@ -23,7 +23,6 @@ let upload = multer({ storage: storage });
 
 module.exports = {
     'POST /upload': [upload.single('file'), async(ctx,next)=>{
-        console.log(ctx.req.file);
         /**
          { fieldname: 'file',
           originalname: '优云面对面快传演示.mp4',
@@ -36,7 +35,7 @@ module.exports = {
          */
         let file = ctx.req.file;
         if(!file){     //上传文件错误
-            ctx.body = '上传文件错误';
+            ctx.easyResponse.error("上传文件错误");
         } else {
             getScreenShot(file.filename)
                 .then(fns => {
@@ -55,11 +54,10 @@ module.exports = {
                 .catch(err => {
                     console.log(err);
                 });
-            console.log(file);
 
-            ctx.body = {
+            ctx.easyResponse.success({
                 filename: ctx.req.file.filename//返回文件名
-            }
+            });
         }
     }],
 };

@@ -30,8 +30,6 @@ function beginScheduleCrawler() {
     });
 }
 
-beginScheduleCrawler();
-
 module.exports = {
     beginScheduleCrawler,
 };

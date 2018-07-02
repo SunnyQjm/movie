@@ -1,15 +1,27 @@
 const fs = require('fs');
 
+function test(t1, t2) {
+    console.log(t1);
+    console.log(t2);
+}
 function addMapping(router, mapping) {
     let path;
     for (let url in mapping) {
         if (url.startsWith('GET ')) {
             path = url.substring(4);
-            router.get(path, mapping[url]);
+            if(Array.isArray(mapping[url])){
+                router.get(path, ...mapping[url]);
+            } else {
+                router.get(path, mapping[url]);
+            }
             console.log(`register URL mapping: GET ${path}`);
         } else if (url.startsWith('POST ')) {
             path = url.substring(5);
-            router.post(path, mapping[url]);
+            if(Array.isArray(mapping[url])){
+                router.post(path, ...mapping[url]);
+            } else {
+                router.post(path, mapping[url]);
+            }
             console.log(`register URL mapping: POST ${path}`);
         } else {
             console.log(`invalid URL: ${url}`);
@@ -29,6 +41,8 @@ function addControllers(router, dir) {
         addMapping(router, mapping);
     }
 }
+
+
 
 module.exports = function (dir) {
     let

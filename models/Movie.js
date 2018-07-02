@@ -6,9 +6,9 @@ const Movie = db.defineModel('movies', {
     releaseTime: {type: db.STRING(500), defaultValue: ''},
     producePlace: {type: db.STRING(500), defaultValue: ''},
     subtitle: {type: db.STRING(500), defaultValue: ''},
-    category: {type: db.STRING(500), defaultValue: ''},
+    category: {type: db.STRING(200), defaultValue: ''},
     introduction: {type: db.STRING(2000), defaultValue: ''},
-    cover: {type: db.STRING(500), defaultValue: ''},
+    cover: {type: db.STRING(200), defaultValue: ''},
     magnet: {type: db.STRING(500), defaultValue: ''},
     isDownload: {
         type: db.BOOLEAN,
@@ -21,7 +21,6 @@ const Movie = db.defineModel('movies', {
     downloadPath: {type: db.STRING(200), defaultValue: ''},
     originUrl: {
         type: db.STRING(200),
-        unique: true,
         defaultValue: ''
     },
     failedTime: {
@@ -29,5 +28,6 @@ const Movie = db.defineModel('movies', {
         defaultValue: 0
     }
 });
-Movie.sync({ alter: true });
+
+// Movie.sync({ alter: true });
 module.exports = Movie;

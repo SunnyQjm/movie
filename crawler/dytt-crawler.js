@@ -83,17 +83,26 @@ function crawlerMovieAndSave(url, charset) {
                 let cover = zoom.find('p img')
                     .first()
                     .prop('src');
-                buildMovie({
-                    magnet: magnet,
-                    cover: cover,
-                    originUrl: url,
-                }, textArr)
-                    .then(p => {
-                        console.log('created: ' + JSON.stringify(p));
-                    }).catch(err => {
-                    console.log('failed: ' + err);
+                Movie.findOne({
+                    where: {
+                        originUrl: url
+                    }
+                }).then(result => {
+                    if(!!result && result.length > 0){ //存在则忽略
+                        console.log('重复不添加：' + url);
+                    } else {
+                        buildMovie({
+                            magnet: magnet,
+                            cover: cover,
+                            originUrl: url,
+                        }, textArr)
+                            .then(p => {
+                                console.log('created: ' + JSON.stringify(p));
+                            }).catch(err => {
+                            console.log('failed: ' + err);
+                        });
+                    }
                 });
-
             } else {
                 console.log(err);
             }

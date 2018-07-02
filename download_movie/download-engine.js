@@ -10,6 +10,7 @@ String.prototype.trim = function () {
 
 let Movie = model.Movie;
 let client = new WebTorrent();
+let movies = [];
 
 let savePath = path.join(__dirname, 'static');
 
@@ -26,7 +27,7 @@ function download(movie, client) {
     client.add(magnet, {
         path: savePath,       //设置下载文件的路径
     }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);
-
+        movie.my_torrent = torrent;
         torrent.on('download', bytes => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
         });
 
@@ -68,12 +69,16 @@ function findMovieAndDownload(client) {
             isDownload: 0,
             magnet: {
                 $like: 'magnet%'
-            }
+            },
         },
+        order: [
+            ['failedTime', 'ASC']
+        ],       //按失败次数排序，失败次数越多，得到执行的可能性越小
         limit: 50,
     })
         .then(result => {
             result.rows.forEach(movie => {
+                movies.push(movie);
                 download(movie, client);
             });
         });
@@ -88,6 +93,18 @@ function beginScheduleDownload() {
     rule.minute = 1;
     rule.hour = [0, 4, 8, 12, 16, 20];
     schedule.scheduleJob(rule, () => {
+        movies.forEach(movie => {
+            if(!movie.my_torrent){      //如果没有获取到种子文件，下载失败次数+1
+                Movie.update({
+                    failedTime: movie.failedTime + 1,
+                }, {
+                    where: {
+                        id: movie.id
+                    }
+                });
+            }
+        });
+        movies = [];    //清空Movie列表
         client.destroy(() => {
             client = new WebTorrent();
             findMovieAndDownload(client);

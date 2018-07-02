@@ -1,14 +1,14 @@
 const db = require('../db');
 
 const Movie = db.defineModel('movies', {
-    movieName: {type: db.STRING(100), defaultValue: ''},
-    translationName: {type: db.STRING(100), defaultValue: ''},
-    releaseTime: {type: db.STRING(50), defaultValue: ''},
-    producePlace: {type: db.STRING(100), defaultValue: ''},
-    subtitle: {type: db.STRING(100), defaultValue: ''},
-    category: {type: db.STRING(50), defaultValue: ''},
-    introduction: {type: db.STRING(1000), defaultValue: ''},
-    cover: {type: db.STRING(200), defaultValue: ''},
+    movieName: {type: db.STRING(500), defaultValue: ''},
+    translationName: {type: db.STRING(500), defaultValue: ''},
+    releaseTime: {type: db.STRING(500), defaultValue: ''},
+    producePlace: {type: db.STRING(500), defaultValue: ''},
+    subtitle: {type: db.STRING(500), defaultValue: ''},
+    category: {type: db.STRING(500), defaultValue: ''},
+    introduction: {type: db.STRING(2000), defaultValue: ''},
+    cover: {type: db.STRING(500), defaultValue: ''},
     magnet: {type: db.STRING(500), defaultValue: ''},
     isDownload: {
         type: db.BOOLEAN,
@@ -24,11 +24,10 @@ const Movie = db.defineModel('movies', {
         unique: true,
         defaultValue: ''
     },
-    // failedTime: {
-    //     type: db.INTEGER,
-    //     defaultValue: 0
-    // }
+    failedTime: {
+        type: db.INTEGER,
+        defaultValue: 0
+    }
 });
-
-
+Movie.sync({ alter: true });
 module.exports = Movie;

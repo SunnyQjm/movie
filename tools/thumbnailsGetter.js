@@ -1,10 +1,14 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////
+////////  这是一个工具函数，用于从视屏中提取一帧作为缩略图
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 const FfmpegCommand = require('fluent-ffmpeg');
 
-const ORIGIN_PATH = 'static/uploads/';
 
-function getScreenShot(fileName) {
+function getScreenShot(fileName, forder) {
     return new Promise((resolve, reject) => {
-        let ffmpeg = FfmpegCommand(ORIGIN_PATH + fileName);
+        let ffmpeg = FfmpegCommand(forder + fileName);
         let fns = [];
         ffmpeg
             .on('filenames', function (filenames) {

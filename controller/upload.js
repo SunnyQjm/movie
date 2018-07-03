@@ -37,7 +37,7 @@ module.exports = {
         if(!file){     //上传文件错误
             ctx.easyResponse.error("上传文件错误");
         } else {
-            getScreenShot(file.filename)
+            getScreenShot(file.filename, file.destination)
                 .then(fns => {
                     console.log(fns);
                     Movie.create({

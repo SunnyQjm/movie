@@ -13,9 +13,9 @@ const getMovies = async ctx => {
         isDownload= ctx.query.isDownload;       //用来过滤电影是否已经下载完成。1 => 已下载完成， 0 => 未下载
     let findParams = {
         where: {
-            magnet: {
-                $like: 'magnet%'
-            }
+            // magnet: {
+            //     $like: 'magnet%'
+            // }
         },
         offset: (page - 1) * size,
         limit: size
@@ -28,8 +28,7 @@ const getMovies = async ctx => {
     if(isDownload !== undefined)
         findParams.where.isDownload = +isDownload ? 1 : 0;
     let result = await Movie.findAll(findParams);
-    ctx.response.type = 'application/json';
-    ctx.response.body = JSON.stringify(result);
+    ctx.easyResponse.success(result);
 };
 
 
@@ -53,8 +52,7 @@ const queryMovieByName = async ctx =>{
         },
     };
     let result = await Movie.findAll(findParams);
-    ctx.response.type = 'application/json';
-    ctx.response.body = JSON.stringify(result);
+    ctx.easyResponse.success(result);
 };
 
 module.exports = {

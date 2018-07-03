@@ -12,11 +12,6 @@ const getMovies = async ctx => {
         order = ctx.query.order || 'ASC',       //排序方式。 ASC=>升序，DESC=>降序
         isDownload= ctx.query.isDownload;       //用来过滤电影是否已经下载完成。1 => 已下载完成， 0 => 未下载
     let findParams = {
-        where: {
-            // magnet: {
-            //     $like: 'magnet%'
-            // }
-        },
         offset: (page - 1) * size,
         limit: size
     };
@@ -55,7 +50,29 @@ const queryMovieByName = async ctx =>{
     ctx.easyResponse.success(result);
 };
 
+/**
+ * 这个接口是在服务器上查找有没有传入md5所对应的文件，如果有的话就不用再上传了
+ * @param ctx
+ * @returns {Promise<void>}
+ */
+const judgeMd5 = async ctx => {
+  const md5 = ctx.query.md5;
+  let findParams = {
+      where: {
+          md5: md5,
+      },
+  };
+  let movie = await Movie.findOne(findParams);
+  let result = {
+      exist: movie !== null,
+  };
+  if(movie !== null)
+      result.movie = movie;
+  ctx.easyResponse.success(result);
+};
+
 module.exports = {
     'GET /getMovies': getMovies,
     'GET /queryMovieByName': queryMovieByName,
+    'GET /judgeMD5': judgeMd5,
 };

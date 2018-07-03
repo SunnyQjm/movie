@@ -26,8 +26,12 @@ const Movie = db.defineModel('movies', {
     failedTime: {
         type: db.INTEGER,
         defaultValue: 0
+    },
+    md5: {
+        type: db.STRING(64),
+        defaultValue: ''
     }
 });
 
-// Movie.sync({ alter: true });
+// Movie.sync({alter: true});
 module.exports = Movie;

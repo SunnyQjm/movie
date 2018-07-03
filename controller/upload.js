@@ -4,6 +4,10 @@ const {
     getScreenShot
 } = require('../tools/thumbnailsGetter');
 
+const {
+    getMd5
+} = require('../tools/md5');
+
 //文件上传
 //配置
 let storage = multer.diskStorage({
@@ -18,6 +22,7 @@ let storage = multer.diskStorage({
         cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);
     }
 });
+
 //加载配置
 let upload = multer({ storage: storage });
 
@@ -37,27 +42,34 @@ module.exports = {
         if(!file){     //上传文件错误
             ctx.easyResponse.error("上传文件错误");
         } else {
-            getScreenShot(file.filename, file.destination)
-                .then(fns => {
-                    console.log(fns);
-                    Movie.create({
-                        movieName: file.originalname,
-                        cover: `/upload/${fns[0]}`,
-                        downloadPath: `/upload/${file.filename}`,
-                        isDownload: 1
-                    }).then(p => {
-                        console.log('created: ' + JSON.stringify(p));
-                    }).catch(err => {
-                        console.log('failed: ' + err);
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
+            try {
+                let fns = await getScreenShot(file.filename, file.destination);
+                let movie = await Movie.create({
+                    movieName: file.originalname,
+                    cover: `/upload/${fns[0]}`,
+                    downloadPath: `/upload/${file.filename}`,
+                    isDownload: 1
                 });
 
-            ctx.easyResponse.success({
-                filename: ctx.req.file.filename//返回文件名
-            });
+                //上传成功后，返回文件的基本信息
+                ctx.easyResponse.success(movie);
+
+                //给客户返回请求之后计算文件的MD5值，如果文件较大，用户无需等待。
+                //MD5计算完毕后写到数据库当中
+                getMd5(file.path)
+                    .then(md5 => {
+                        Movie.update({
+                            md5: md5
+                        }, {
+                            where: {
+                                id: movie.id
+                            }
+                        })
+                    });
+            } catch (err) {
+                console.log('failed: ' + err);
+                ctx.easyResponse.error(err);
+            }
         }
     }],
 };

@@ -15,6 +15,19 @@ const {
 const seedFiles = require('../seed/seed-engine');
 const fs = require("fs");
 const path = require("path");
+const mkdir = require('make-dir');
+
+
+
+mkdir('static/uploads')
+    .then(path => {
+        console.log(`create path: ${path}`);
+    });
+
+mkdir('static/thumbnails')
+    .then(path => {
+        console.log(`create path: ${path}`);
+    });
 
 /**
  * 启动的时候，服务器开始seed服务器上现有的文件
@@ -35,7 +48,7 @@ fs.readdir(root, (err, files) => {
 let storage = multer.diskStorage({
     //文件保存路径
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../static/uploads/'))
+        cb(null, path.join('static/uploads/'))
     },
     //修改文件名称
     filename: function (req, file, cb) {

@@ -12,7 +12,7 @@ let Movie = model.Movie;
 let client = new WebTorrent();
 let movies = [];
 
-let savePath = path.join(__dirname, 'static');
+let savePath = path.join('static/download');
 
 /**
  * 下载movie对象中的磁力链接，并且在下载完成后将isDownload标志位置1，并写回数据库

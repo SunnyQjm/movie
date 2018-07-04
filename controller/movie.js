@@ -1,4 +1,6 @@
 const Movie = require('../models/Movie');
+const Sequelize = require('sequelize');
+
 
 /**
  * 分页获取电影接口
@@ -13,7 +15,11 @@ const getMovies = async ctx => {
         isDownload= ctx.query.isDownload;       //用来过滤电影是否已经下载完成。1 => 已下载完成， 0 => 未下载
     let findParams = {
         offset: (page - 1) * size,
-        limit: size
+        limit: size,
+        attributes: {
+            include: [[Sequelize.fn('CONCAT', 'http://localhost:4897', Sequelize.col('cover')), 'cover']]
+        },
+        where: {}
     };
     if(orderProp && (order === 'ASC' || order === 'DESC')){
         findParams.order = [
@@ -26,6 +32,7 @@ const getMovies = async ctx => {
     ctx.easyResponse.success(result);
 };
 
+//D:\WebstormProj\movie\static\thumbnails\1530613859089.mp4-thumbnail.png
 
 /**
  * 通过电影的名字查询电影的信息

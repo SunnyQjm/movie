@@ -20,7 +20,7 @@ const path = require("path");
  * 启动的时候，服务器开始seed服务器上现有的文件
  * @type {string}
  */
-let root = path.join('static/uploads');
+let root = path.join(__dirname, '../static/uploads/');
 fs.readdir(root, (err, files) => {
     if (err) {
         console.log(err);
@@ -35,7 +35,7 @@ fs.readdir(root, (err, files) => {
 let storage = multer.diskStorage({
     //文件保存路径
     destination: function (req, file, cb) {
-        cb(null, 'static/uploads/')
+        cb(null, path.join(__dirname, '../static/uploads/'))
     },
     //修改文件名称
     filename: function (req, file, cb) {

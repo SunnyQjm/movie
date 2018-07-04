@@ -14,12 +14,6 @@ function seedFiles(path, cb){
                 'udp://210.30.100.171:8000',
                 'ws://210.30.100.171:8000',
             ]
-            // announce: [
-            //     'http://localhost:8000/announce',
-            //     'udp://0.0.0.0:8000',
-            //     'udp://localhost.171:8000',
-            //     'ws://localhost.171:8000',
-            // ]
         }, torrent => {
             console.log(torrent.magnetURI);
             if(cb)

@@ -2,7 +2,10 @@ const WebTorrent = require('webtorrent');
 const path = require('path');
 const model = require('../model');
 const schedule = require('node-schedule');        //用户开启定时任务
+const seedFiles = require('../seed/seed-engine');
 
+const fs = require("fs");
+const mkdir = require('make-dir');
 
 String.prototype.trim = function () {
     return this.replace(/(^\s*)|(\s*$)/g, "");
@@ -13,6 +16,15 @@ let client = new WebTorrent();
 let movies = [];
 
 let savePath = path.join('static/download');
+
+
+
+//提前创建好文件夹保存下载的电影
+mkdir('static/download')
+    .then(path => {
+        console.log(`create path: ${path}`);
+    });
+
 
 /**
  * 下载movie对象中的磁力链接，并且在下载完成后将isDownload标志位置1，并写回数据库
@@ -48,6 +60,17 @@ function download(movie, client) {
                 where: {
                     id: movie.id
                 }
+            });
+
+            //将下载好的电影开始由本机播种
+            seedFiles(file.path, torrent => {
+                Movie.update({
+                    magnet: torrent.magnetURI
+                }, {
+                    where: {
+                        id: movie.id
+                    }
+                });
             });
         })
     });

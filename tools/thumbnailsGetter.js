@@ -6,7 +6,7 @@
 const FfmpegCommand = require('fluent-ffmpeg');
 
 
-function getScreenShot(fileName, forder) {
+function getScreenShot(fileName, forder, thumbnailsForder) {
     return new Promise((resolve, reject) => {
         let ffmpeg = FfmpegCommand(forder + fileName);
         let fns = [];
@@ -21,7 +21,7 @@ function getScreenShot(fileName, forder) {
             .screenshots({
                 timestamps: ['1%'],
                 filename: fileName + '-thumbnail.png',
-                folder: 'static/thumbnails',
+                folder: thumbnailsForder,
                 // size: '320x240'
             });
     });

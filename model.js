@@ -25,8 +25,8 @@ const {
 } = module.exports;
 
 Movie.hasMany(Magnet, {
-    // constraints: true,
-    // onDelete: 'CASCADE',
+    constraints: true,
+    onDelete: 'CASCADE',
     // as: 'magnet',
 });
 

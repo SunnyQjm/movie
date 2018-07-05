@@ -1,5 +1,10 @@
-const Movie = require('../models/Movie');
 const Sequelize = require('sequelize');
+const model = require('../model');
+
+const {
+    Movie,
+    Magnet,
+} = model;
 
 
 /**
@@ -16,10 +21,12 @@ const getMovies = async ctx => {
     let findParams = {
         offset: (page - 1) * size,
         limit: size,
-        attributes: {
-            include: [[Sequelize.fn('CONCAT', 'http://localhost:4897', Sequelize.col('cover')), 'cover']]
-        },
-        where: {}
+        // attributes: {
+        //     exclude: ['cover'],
+        //     include: [[Sequelize.fn('CONCAT', 'http://localhost:4897', Sequelize.col('cover')), 'cover']]
+        // },
+        where: {},
+        include: [Magnet]
     };
     if(orderProp && (order === 'ASC' || order === 'DESC')){
         findParams.order = [
@@ -52,6 +59,7 @@ const queryMovieByName = async ctx =>{
                 }
             }
         },
+        include: [Magnet]
     };
     let result = await Movie.findAll(findParams);
     ctx.easyResponse.success(result);

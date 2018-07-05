@@ -11,7 +11,11 @@ String.prototype.trim = function () {
     return this.replace(/(^\s*)|(\s*$)/g, "");
 };
 
-let Movie = model.Movie;
+let {
+    Movie,
+    Magnet,
+} = model.Movie;
+
 let client = new WebTorrent();
 let movies = [];
 
@@ -68,12 +72,20 @@ function download(movie, client) {
                                 size: file.length,
                                 downloadPath: path.join(savePath, file.name),
                                 md5: md5,
-                                magnet: torrent.magnetURI,
                             }, {
                                 where: {
                                     id: movie.id
                                 }
                             });
+                            movie.addMagnet(Magnet.create({
+                                magnet: torrent.magnetURI,
+                            }))
+                                .then(() => {
+
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                });
                         })
                         .catch(err => {
                             console.log(err);

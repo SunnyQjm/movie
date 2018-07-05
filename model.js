@@ -19,6 +19,19 @@ for(let f of js_files){
     module.exports[name] = require(path.join(__dirname, 'models', f));
 }
 
+const {
+    Movie,
+    Magnet
+} = module.exports;
+
+Movie.hasMany(Magnet, {
+    // constraints: true,
+    // onDelete: 'CASCADE',
+    // as: 'magnet',
+});
+
+Magnet.belongsTo(Movie);
+
 module.exports.sync = (then) => {
     db.sync(then);
 };

@@ -1,5 +1,6 @@
 const multer = require('koa-multer');
-const Movie = require('../models/Movie');
+const model = require('../model');
+const uuid = require('node-uuid');
 const {
     getScreenShot
 } = require('../tools/thumbnailsGetter');
@@ -8,15 +9,17 @@ const {
     getMd5
 } = require('../tools/md5');
 
-// const {
-//     getRedisClient
-// } = require('../tools/redis-client');
+const {
+    getRedisClient
+} = require('../tools/redis-client');
 
 const seedFiles = require('../seed/seed-engine');
 const fs = require("fs");
 const path = require("path");
 const mkdir = require('make-dir');
 
+const Movie = model.Movie;
+const Magnet = model.Magnet;
 
 
 mkdir('static/uploads')
@@ -55,7 +58,7 @@ let storage = multer.diskStorage({
         //用当前时间作为文件的名字
         // let fileFormat = (file.originalname).split(".");  //以点分割成数组，数组的最后一项就是后缀名
         // cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);
-        cb(null, file.originalname);
+        cb(null, file.originalname + uuid());
     }
 });
 
@@ -84,38 +87,50 @@ module.exports = {
                     movieName: file.originalname,
                     cover: `/upload/${fns[0]}`,
                     downloadPath: `/upload/${file.filename}`,
-                    isDownload: 1
+                    isDownload: 1,
+                    size: file.size
                 });
 
                 //上传成功后，返回文件的基本信息
                 ctx.easyResponse.success(movie);
 
-                seedFiles(file.path, torrent => {
-                    // //将torrent.magnetURI存到Redis当中
-                    // getRedisClient(client => {
-                    //     client.set(movie.id, torrent.magnetURI);
-                    // });
-
-                    Movie.update({
-                        magnet: torrent.magnetURI
-                    }, {
-                        where: {
-                            id: movie.id
-                        }
-                    })
-                });
-
                 //给客户返回请求之后计算文件的MD5值，如果文件较大，用户无需等待。
                 //MD5计算完毕后写到数据库当中
                 getMd5(file.path)
                     .then(md5 => {
-                        Movie.update({
-                            md5: md5
-                        }, {
-                            where: {
-                                id: movie.id
-                            }
-                        })
+                        getRedisClient(redisClient => {
+                            redisClient.get(md5, (err, value) => {
+                                if (value) {      //该文件正在被seeding，则从Redis里找到其magnet
+                                    Magnet.create({
+                                        magnet: value,
+                                    }).then(magnet => {
+                                        movie.addMagnet(magnet);
+                                    }).catch(err => {
+                                        console.log(err);
+                                    })
+                                } else {
+                                    seedFiles(file.path)
+                                        .then(torrent => {
+                                            movie.addMagnet(Magnet.create({
+                                                magnet: torrent.magnetURI,
+                                            })).then(() => {
+                                                console.log('then')
+                                            }).catch(err => {
+                                            })
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        });
+                                }
+                                Movie.update({
+                                    md5: md5,
+                                }, {
+                                    where: {
+                                        id: movie.id,
+                                    }
+                                });
+                            })
+                        });
                     });
             } catch (err) {
                 console.log('failed: ' + err);

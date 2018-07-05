@@ -9,7 +9,7 @@ const Movie = db.defineModel('movies', {
     category: {type: db.STRING(200), defaultValue: ''},
     introduction: {type: db.STRING(2000), defaultValue: ''},
     cover: {type: db.STRING(200), defaultValue: ''},
-    magnet: {type: db.STRING(500), defaultValue: ''},
+    // magnet: {type: db.STRING(500), defaultValue: ''},
     isDownload: {
         type: db.BOOLEAN,
         defaultValue: 0,
@@ -33,5 +33,6 @@ const Movie = db.defineModel('movies', {
     }
 });
 
-// Movie.sync({alter: true});
+
+// Movie.sync({al   ter: true});
 module.exports = Movie;

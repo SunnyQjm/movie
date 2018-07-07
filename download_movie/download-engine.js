@@ -14,7 +14,7 @@ String.prototype.trim = function () {
 let {
     Movie,
     Magnet,
-} = model.Movie;
+} = model;
 
 let client = new WebTorrent();
 let movies = [];
@@ -36,65 +36,75 @@ mkdir('static/download')
  * @param client
  */
 function download(movie, client) {
-    let magnet = movie.magnet;
-    if (magnet.trim() === '' || !magnet.startsWith('magnet'))
-        return;
-    console.log(new Date() + ': add download ==> ' + magnet);
-    client.add(magnet, {
-        path: tempPath,       //设置下载文件的路径
-    }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);
-        movie.my_torrent = torrent;
-        torrent.on('download', bytes => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
-        });
+    movie.getMagnets({
+        order: [['failedTime', 'ASC']]
+    })
+        .then(magnets => {
+            if(magnets.length === 0)
+                return;
+            let magnet = magnets[0].magnet;
+            if (magnet.trim() === '' || !magnet.startsWith('magnet'))
+                return;
+            console.log(new Date() + ': add download ==> ' + magnet);
+            client.add(magnet, {
+                path: tempPath,       //设置下载文件的路径
+            }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);
+                movie.my_torrent = torrent;
+                torrent.on('download', bytes => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
+                });
 
-        torrent.on('error', err => {
-            console.log('download error: ' + err);
-        });
-        torrent.on('done', function () {
-            console.log('torrent finished downloading');
-            let file = torrent.files.find(file => {
-                return file.name.endsWith('.mp4') || file.name.endsWith('.rmvb');
-            });
-
-            /**
-             * 将下载完成的电影移到uploads文件夹当中
-             */
-            let targetSavePath = path.join(savePath, file.name + uuid());
-            mv(path.join(tempPath, file.name), targetSavePath, {
-                mkdirp: true,       //是否递归创建目录
-            }, err => {
-                if (!err && err.code !== 'EEXIST') {
-                    seedFiles(targetSavePath)
-                        .then(torrent, md5 => {
-                            //下载完成则将其标识为已下载
-                            Movie.update({
-                                isDownload: 1,
-                                size: file.length,
-                                downloadPath: path.join(savePath, file.name),
-                                md5: md5,
-                            }, {
-                                where: {
-                                    id: movie.id
-                                }
-                            });
-                            movie.addMagnet(Magnet.create({
-                                magnet: torrent.magnetURI,
-                            }))
-                                .then(() => {
-
+                torrent.on('error', err => {
+                    console.log('download error: ' + err);
+                });
+                torrent.on('done', function () {
+                    console.log('torrent finished downloading');
+                    let file = torrent.files.find(file => {
+                        return file.name.endsWith('.mp4') || file.name.endsWith('.rmvb');
+                    });
+                    if(!file)
+                        return;
+                    /**
+                     * 将下载完成的电影移到uploads文件夹当中
+                     */
+                    let targetSavePath = path.join(savePath, uuid() + file.name);
+                    mv(path.join(tempPath, file.name), targetSavePath, {
+                        mkdirp: true,       //是否递归创建目录
+                    }, err => {
+                        console.log(err);
+                        if (!err || err.code !== 'EEXIST') {
+                            seedFiles(targetSavePath)
+                                .then(torrent, md5 => {
+                                    //下载完成则将其标识为已下载
+                                    Movie.update({
+                                        isDownload: 1,
+                                        size: file.length,
+                                        downloadPath: path.join(savePath, file.name),
+                                        md5: md5,
+                                    }, {
+                                        where: {
+                                            id: movie.id
+                                        }
+                                    });
+                                    Magnet.create({
+                                        magnet: torrent.magnetURI,
+                                    })
+                                        .then(magnet => {
+                                            movie.addMagnet(magnet);
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        });
                                 })
                                 .catch(err => {
                                     console.log(err);
                                 });
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
-                }
-            });
+                        }
+                    });
 
-        })
-    });
+                })
+            });
+        });
+
 }
 
 
@@ -111,9 +121,6 @@ function findMovieAndDownload(client) {
     Movie.findAndCountAll({
         where: {
             isDownload: 0,
-            magnet: {
-                $like: 'magnet%'
-            },
         },
         order: [
             ['failedTime', 'ASC']
@@ -155,7 +162,6 @@ function beginScheduleDownload() {
         })
     })
 }
-
 
 module.exports = {
     beginScheduleDownload,

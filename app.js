@@ -2,7 +2,7 @@ const Koa = require('koa');
 const controller = require('./controllers');
 const bodyParser = require('koa-bodyparser');
 const combineMiddleWare = require('./middleware');
-
+const cors = require('koa-cors');
 
 const {
     beginScheduleCrawler
@@ -16,6 +16,7 @@ const app = new Koa();
 
 combineMiddleWare(app, __dirname);
 app.use(bodyParser());
+app.use(cors());
 app.use(controller());
 
 app.listen(4897);
@@ -26,7 +27,8 @@ console.log('app started at port 4897...');
 //  */
 // beginScheduleCrawler();
 //
-// /**
-//  * 开启定时下载任务
-//  */
-// beginScheduleDownload();
+
+/**
+ * 开启定时下载任务
+ */
+beginScheduleDownload();

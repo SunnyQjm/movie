@@ -17,6 +17,16 @@ getClient(client => {
     });
 });
 
+let host;
+const port = 8000;
+if(process.env.NODE_ENV === 'test'){
+    host = 'localhost'
+} else {
+    host = '210.30.100.171'
+}
+
+console.log(host);
+
 function seedFiles(path) {
     return new Promise((resolve, reject) => {
         getMd5(path)
@@ -24,10 +34,10 @@ function seedFiles(path) {
                 getClient(client => {
                     client.seed(path, {
                         announce: [
-                            'http://210.30.100.171:8000/announce',
+                            `http://${host}:${port}/announce`,
                             'udp://0.0.0.0:8000',
-                            'udp://210.30.100.171:8000',
-                            'ws://210.30.100.171:8000',
+                            `udp://${host}:${port}`,
+                            `ws://${host}:${port}`,
                         ]
                     }, torrent => {
                         getRedisClient(redisClient => {
@@ -41,7 +51,6 @@ function seedFiles(path) {
                 });
             })
             .catch(reject);
-
     });
 }
 

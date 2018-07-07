@@ -23,14 +23,14 @@ const Movie = db.defineModel('movies', {
         type: db.STRING(200),
         defaultValue: ''
     },
+    md5: {
+        type: db.STRING(64),
+        defaultValue: ''
+    },
     failedTime: {
         type: db.INTEGER,
         defaultValue: 0
     },
-    md5: {
-        type: db.STRING(64),
-        defaultValue: ''
-    }
 });
 
 

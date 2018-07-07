@@ -58,7 +58,7 @@ let storage = multer.diskStorage({
         //用当前时间作为文件的名字
         // let fileFormat = (file.originalname).split(".");  //以点分割成数组，数组的最后一项就是后缀名
         // cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);
-        cb(null, file.originalname + uuid());
+        cb(null, uuid() + file.originalname);
     }
 });
 
@@ -111,11 +111,12 @@ module.exports = {
                                 } else {
                                     seedFiles(file.path)
                                         .then(torrent => {
-                                            movie.addMagnet(Magnet.create({
+                                            Magnet.create({
                                                 magnet: torrent.magnetURI,
-                                            })).then(() => {
-                                                console.log('then')
+                                            }).then(magnet => {
+                                                movie.addMagnet(magnet);
                                             }).catch(err => {
+                                                console.log(err);
                                             })
                                         })
                                         .catch(err => {

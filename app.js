@@ -2,7 +2,7 @@ const Koa = require('koa');
 const controller = require('./controllers');
 const bodyParser = require('koa-bodyparser');
 const combineMiddleWare = require('./middleware');
-const cors = require('koa-cors');
+const cors = require('koa2-cors');
 
 const {
     beginScheduleCrawler

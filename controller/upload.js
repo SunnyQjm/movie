@@ -90,7 +90,7 @@ module.exports = {
                 let movie = await Movie.create({
                     movieName: file.originalname,
                     cover: cover,
-                    downloadPath: `/upload/${file.filename}`,
+                    downloadPath: `/uploads/${file.filename}`,
                     isDownload: 1,
                     size: file.size,
                     mime: file.mimetype,

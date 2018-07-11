@@ -58,7 +58,7 @@ let storage = multer.diskStorage({
         //用当前时间作为文件的名字
         // let fileFormat = (file.originalname).split(".");  //以点分割成数组，数组的最后一项就是后缀名
         // cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);
-        cb(null, uuid() + file.originalname);
+        cb(null, uuid() + path.extname(file.originalname));
     }
 });
 
@@ -82,13 +82,18 @@ module.exports = {
             ctx.easyResponse.error("上传文件错误");
         } else {
             try {
-                let fns = await getScreenShot(file.filename, file.destination, 'static/thumbnails');
+                let cover = '';
+                if(file.mimetype.startsWith('video')){      //如果是视频就截取其中的一帧做缩略图
+                    let fns = await getScreenShot(file.filename, file.destination, 'static/thumbnails');
+                    cover = `/thumbnails/${fns[0]}`;
+                }
                 let movie = await Movie.create({
                     movieName: file.originalname,
-                    cover: `/upload/${fns[0]}`,
+                    cover: cover,
                     downloadPath: `/upload/${file.filename}`,
                     isDownload: 1,
-                    size: file.size
+                    size: file.size,
+                    mime: file.mimetype,
                 });
 
                 //上传成功后，返回文件的基本信息
@@ -134,7 +139,6 @@ module.exports = {
                         });
                     });
             } catch (err) {
-                console.log('failed: ' + err);
                 ctx.easyResponse.error(err);
             }
         }

@@ -31,8 +31,12 @@ const Movie = db.defineModel('movies', {
         type: db.INTEGER,
         defaultValue: 0
     },
+    mime: {
+        type: db.STRING(100),
+        default: ''
+    }
 });
 
 
-// Movie.sync({al   ter: true});
+// Movie.sync({alter: true});
 module.exports = Movie;

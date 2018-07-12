@@ -1,4 +1,3 @@
-const Sequelize = require('sequelize');
 const model = require('../model');
 
 const {
@@ -18,6 +17,8 @@ const getMovies = async ctx => {
         orderProp = ctx.query.orderProp,        //排序的属性
         order = ctx.query.order || 'ASC',       //排序方式。 ASC=>升序，DESC=>降序
         isDownload = ctx.query.isDownload,       //用来过滤电影是否已经下载完成。1 => 已下载完成， 0 => 未下载
+        filterProps = ctx.query.filterProps,    //用来作模糊查询的字段列表，用-分隔
+        filterValues = ctx.query.filterValues,  //用来作模糊查询的字段对应的值
         /**
          * video => 视频
          * audio => 音频
@@ -31,6 +32,19 @@ const getMovies = async ctx => {
         where: {},
         include: [Magnet]
     };
+    if(!!filterProps && !!filterValues){
+        let fps = filterProps.split('-');
+        let fvs = filterValues.split('-');
+        if(fps.length !== fvs.length){
+            ctx.easyResponse.error('The filterProps params length should equal filterValues');
+            return;
+        }
+        for(let i = 0; i < fps.length; i++){
+            findParams.where[fps[i]] = {
+                $like: `%${fvs[i]}%`
+            };
+        }
+    }
     if (type)
         findParams.where.mime = {
             $like: `${type}%`

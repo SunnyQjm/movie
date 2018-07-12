@@ -1,8 +1,8 @@
 const WebTorrent = require('webtorrent'),
     thunky = require('thunky');
-const {
-    getRedisClient
-} = require('../tools/redis-client');
+// const {
+//     getRedisClient
+// } = require('../tools/redis-client');
 const {
     getMd5
 } = require('../tools/md5');
@@ -40,11 +40,11 @@ function seedFiles(path) {
                             `ws://${host}:${port}`,
                         ]
                     }, torrent => {
-                        getRedisClient(redisClient => {
-                            redisClient.set(md5, torrent.magnetURI, () => {
-                                console.log('set finish')
-                            });
-                        });
+                        // getRedisClient(redisClient => {
+                        //     redisClient.set(md5, torrent.magnetURI, () => {
+                        //         console.log('set finish')
+                        //     });
+                        // });
                         if (resolve)
                             resolve(torrent, md5);
                     })

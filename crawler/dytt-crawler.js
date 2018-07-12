@@ -1,7 +1,11 @@
-let superagent = require('superagent'),
+const superagent = require('superagent'),
     cheerio = require('cheerio'),
     async = require('async'),
-    Movie = require('../models/Movie');
+    model = require('../model'),
+    {createIssue} = require('../tools/init-gittalk');
+
+const Movie = model.Movie;
+const Magnet = model.Magnet;
 
 /**
  * 引入 superagent-charset 库扩展 superagent 对象，使其支持设置编码格式
@@ -37,28 +41,65 @@ const DIVIDE_TAG = "◎";
  * 根据爬虫得到的文字，构建一个Movie对象
  * @param initParam
  * @param textArr
- * @returns {initParam}
+ * @returns {Promise<any>}
  */
 function buildMovie(initParam, textArr) {
-    let params = initParam;
-    textArr.forEach(value => {
-        if (value.startsWith(MOVIE_NAME)) {
-            params.movieName = value.substring(MOVIE_NAME.length).trim();
-        } else if (value.startsWith(TRANSLATION_NAME)) {
-            params.translationName = value.substring(TRANSLATION_NAME.length).trim();
-        } else if (value.startsWith(RELEASE_TIME)) {
-            params.releaseTime = value.substring(RELEASE_TIME.length).trim();
-        } else if (value.startsWith(PRODUCE_PLACE)) {
-            params.producePlace = value.substring(PRODUCE_PLACE.length).trim();
-        } else if (value.startsWith(SUBTITLE)) {
-            params.subtitle = value.substring(SUBTITLE.length).trim();
-        } else if (value.startsWith(CATEGORY)) {
-            params.category = value.substring(CATEGORY.length).trim();
-        } else if (value.startsWith(INTRODUCTION)) {
-            params.introduction = value.substring(INTRODUCTION.length).trim();
-        }
+    return new Promise((resolve, reject) => {
+        let params = initParam;
+        textArr.forEach(value => {
+            if (value.startsWith(MOVIE_NAME)) {
+                params.movieName = value.substring(MOVIE_NAME.length).trim();
+            } else if (value.startsWith(TRANSLATION_NAME)) {
+                params.translationName = value.substring(TRANSLATION_NAME.length).trim();
+            } else if (value.startsWith(RELEASE_TIME)) {
+                params.releaseTime = value.substring(RELEASE_TIME.length).trim();
+            } else if (value.startsWith(PRODUCE_PLACE)) {
+                params.producePlace = value.substring(PRODUCE_PLACE.length).trim();
+            } else if (value.startsWith(SUBTITLE)) {
+                params.subtitle = value.substring(SUBTITLE.length).trim();
+            } else if (value.startsWith(CATEGORY)) {
+                params.category = value.substring(CATEGORY.length).trim();
+            } else if (value.startsWith(INTRODUCTION)) {
+                params.introduction = value.substring(INTRODUCTION.length).trim();
+            }
+        });
+        params.mime = 'video/';
+        Movie.findOne({
+            where: {
+                movieName: params.movieName,
+                releaseTime: params.releaseTime,
+            }
+        })
+            .then(movie => {
+                if (movie) {      //存在就不插入了
+                    reject('已存在，不插入');
+                } else {
+                    Movie.create(params)
+                        .then(movie => {
+                            if(movie) {
+                                Magnet.create({
+                                    magnet: initParam.magnet,
+                                }).then(magnet => {
+                                    movie.addMagnet(magnet);
+                                    resolve(movie);
+                                }).catch(err => {
+                                    console.log(err);
+                                    reject(err);
+                                });
+                            }
+                            else
+                                reject("插入失败");
+                        })
+                        .catch(err => {
+                            reject(err);
+                        });
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+
     });
-    return Movie.create(params);
 }
 
 
@@ -88,7 +129,7 @@ function crawlerMovieAndSave(url, charset) {
                         originUrl: url
                     }
                 }).then(result => {
-                    if(!!result && result.length > 0){ //存在则忽略
+                    if (!!result && result.length > 0) { //存在则忽略
                         console.log('重复不添加：' + url);
                     } else {
                         buildMovie({
@@ -96,8 +137,8 @@ function crawlerMovieAndSave(url, charset) {
                             cover: cover,
                             originUrl: url,
                         }, textArr)
-                            .then(p => {
-                                console.log('created: ' + JSON.stringify(p));
+                            .then(movie => {
+                                createIssue("即享", '', ['Gitalk', movie.id])
                             }).catch(err => {
                             console.log('failed: ' + err);
                         });

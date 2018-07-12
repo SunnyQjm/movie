@@ -10,11 +10,8 @@ const {
 } = require('../tools/md5');
 
 const {
-    getRedisClient
-} = require('../tools/redis-client');
-
-const seedFiles = require('../seed/seed-engine');
-const fs = require("fs");
+    createIssue
+} = require('../tools/init-gittalk');
 const path = require("path");
 const mkdir = require('make-dir');
 
@@ -33,19 +30,19 @@ mkdir('static/thumbnails')
     });
 
 /**
- * 启动的时候，服务器开始seed服务器上现有的文件
- * @type {string}
- */
-let root = path.join(__dirname, '../static/uploads/');
-fs.readdir(root, (err, files) => {
-    if (err) {
-        console.log(err);
-    } else {
-        files.forEach(ele => {
-            seedFiles(path.join(root, ele));
-        })
-    }
-});
+//  * 启动的时候，服务器开始seed服务器上现有的文件
+//  * @type {string}
+//  */
+// let root = path.join(__dirname, '../static/uploads/');
+// fs.readdir(root, (err, files) => {
+//     if (err) {
+//         console.log(err);
+//     } else {
+//         files.forEach(ele => {
+//             seedFiles(path.join(root, ele));
+//         })
+//     }
+// });
 
 //文件上传配置
 let storage = multer.diskStorage({
@@ -99,43 +96,17 @@ module.exports = {
                 //上传成功后，返回文件的基本信息
                 ctx.easyResponse.success(movie);
 
+                createIssue('即享', '', ['Gitalk', movie.id]);
                 //给客户返回请求之后计算文件的MD5值，如果文件较大，用户无需等待。
                 //MD5计算完毕后写到数据库当中
                 getMd5(file.path)
                     .then(md5 => {
-                        getRedisClient(redisClient => {
-                            redisClient.get(md5, (err, value) => {
-                                if (value) {      //该文件正在被seeding，则从Redis里找到其magnet
-                                    Magnet.create({
-                                        magnet: value,
-                                    }).then(magnet => {
-                                        movie.addMagnet(magnet);
-                                    }).catch(err => {
-                                        console.log(err);
-                                    })
-                                } else {
-                                    seedFiles(file.path)
-                                        .then(torrent => {
-                                            Magnet.create({
-                                                magnet: torrent.magnetURI,
-                                            }).then(magnet => {
-                                                movie.addMagnet(magnet);
-                                            }).catch(err => {
-                                                console.log(err);
-                                            })
-                                        })
-                                        .catch(err => {
-                                            console.log(err);
-                                        });
-                                }
-                                Movie.update({
-                                    md5: md5,
-                                }, {
-                                    where: {
-                                        id: movie.id,
-                                    }
-                                });
-                            })
+                        Movie.update({
+                            md5: md5,
+                        }, {
+                            where: {
+                                id: movie.id,
+                            }
                         });
                     });
             } catch (err) {

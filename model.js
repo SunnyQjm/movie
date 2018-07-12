@@ -21,7 +21,8 @@ for(let f of js_files){
 
 const {
     Movie,
-    Magnet
+    Magnet,
+    ShareWebsite,
 } = module.exports;
 
 Movie.hasMany(Magnet, {

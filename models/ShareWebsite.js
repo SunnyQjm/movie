@@ -17,7 +17,13 @@ const ShareWebsite = db.defineModel("share_website", {
     cover: {
         type: db.STRING(200),
         defaultValue: '',
+    },
+    category: {
+        type: db.STRING(50),
+        defaultValue: '默认',
     }
 });
+
+// ShareWebsite.sync({alter: true});
 
 module.exports = ShareWebsite;

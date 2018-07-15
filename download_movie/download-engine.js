@@ -72,32 +72,42 @@ function download(movie, client) {
                     }, err => {
                         console.log(err);
                         if (!err || err.code !== 'EEXIST') {
-                            seedFiles(targetSavePath)
-                                .then(torrent, md5 => {
-                                    //下载完成则将其标识为已下载
-                                    Movie.update({
-                                        isDownload: 1,
-                                        size: file.length,
-                                        downloadPath: path.join(savePath, file.name),
-                                        md5: md5,
-                                    }, {
-                                        where: {
-                                            id: movie.id
-                                        }
-                                    });
-                                    Magnet.create({
-                                        magnet: torrent.magnetURI,
-                                    })
-                                        .then(magnet => {
-                                            movie.addMagnet(magnet);
-                                        })
-                                        .catch(err => {
-                                            console.log(err);
-                                        });
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                });
+                            Movie.update({
+                                isDownload: 1,
+                                size: file.length,
+                                downloadPath: path.join(savePath, file.name),
+                                md5: md5,
+                            }, {
+                                where: {
+                                    id: movie.id
+                                }
+                            });
+                            // seedFiles(targetSavePath)
+                            //     .then(torrent, md5 => {
+                            //         //下载完成则将其标识为已下载
+                            //         Movie.update({
+                            //             isDownload: 1,
+                            //             size: file.length,
+                            //             downloadPath: path.join(savePath, file.name),
+                            //             md5: md5,
+                            //         }, {
+                            //             where: {
+                            //                 id: movie.id
+                            //             }
+                            //         });
+                            //         Magnet.create({
+                            //             magnet: torrent.magnetURI,
+                            //         })
+                            //             .then(magnet => {
+                            //                 movie.addMagnet(magnet);
+                            //             })
+                            //             .catch(err => {
+                            //                 console.log(err);
+                            //             });
+                            //     })
+                            //     .catch(err => {
+                            //         console.log(err);
+                            //     });
                         }
                     });
 

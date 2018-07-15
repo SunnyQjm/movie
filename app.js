@@ -32,9 +32,9 @@ console.log('app started at port 4897...');
 //  * 开启定时爬虫的任务
 //  */
 // beginScheduleCrawler();
-//
-//
-// /**
-//  * 开启定时下载任务
-//  */
-// beginScheduleDownload();
+
+
+/**
+ * 开启定时下载任务
+ */
+beginScheduleDownload();

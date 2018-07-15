@@ -4,7 +4,7 @@ const {
 const {
     getThumbnails
 } = require('../tools/image-magick');
-const url = requires('url');
+const url = require('url');
 const mkdir = require('make-dir');
 const path = require('path');
 const model = require('../model');

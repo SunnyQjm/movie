@@ -3,6 +3,9 @@ const path = require('path');
 const model = require('../model');
 const schedule = require('node-schedule');        //用户开启定时任务
 const seedFiles = require('../seed/seed-engine');
+const {
+    getMd5
+} = require('../tools/md5');
 const mkdir = require('make-dir');
 const mv = require('mv');
 const uuid = require('node-uuid');
@@ -72,16 +75,22 @@ function download(movie, client) {
                     }, err => {
                         console.log(err);
                         if (!err || err.code !== 'EEXIST') {
-                            Movie.update({
-                                isDownload: 1,
-                                size: file.length,
-                                downloadPath: path.join(savePath, file.name),
-                                md5: md5,
-                            }, {
-                                where: {
-                                    id: movie.id
-                                }
-                            });
+                            getMd5(targetSavePath)
+                                .then(md5 => {
+                                    Movie.update({
+                                        isDownload: 1,
+                                        size: file.length,
+                                        downloadPath: path.join(savePath, file.name),
+                                        md5: md5,
+                                    }, {
+                                        where: {
+                                            id: movie.id
+                                        }
+                                    });
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                })
                             // seedFiles(targetSavePath)
                             //     .then(torrent, md5 => {
                             //         //下载完成则将其标识为已下载
@@ -152,7 +161,8 @@ function beginScheduleDownload() {
     let rule = new schedule.RecurrenceRule();
     rule.second = 1;
     rule.minute = 1;
-    rule.hour = [0, 4, 8, 12, 16, 20];
+    // rule.hour = [0, 4, 8, 12, 16, 20];
+    rule.hour = [0, 12];
     schedule.scheduleJob(rule, () => {
         movies.forEach(movie => {
             if (!movie.my_torrent) {      //如果没有获取到种子文件，下载失败次数+1

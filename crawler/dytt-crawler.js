@@ -140,7 +140,7 @@ function crawlerMovieAndSave(url, charset) {
                             .then(movie => {
                                 createIssue("即享", '', ['Gitalk', movie.id])
                             }).catch(err => {
-                            console.log('failed: ' + err);
+                            console.log('failed create Issue: ' + err);
                         });
                     }
                 });

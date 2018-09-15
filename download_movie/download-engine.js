@@ -24,6 +24,7 @@ let movies = [];
 let tempPath = path.join('static/download');
 let savePath = path.join('static/uploads');
 
+
 let downloadBasePath = path.join('/uploads');
 //提前创建好文件夹保存下载的电影
 mkdir('static/download')
@@ -52,7 +53,7 @@ function download(movie, client) {
                 path: tempPath,       //设置下载文件的路径
             }, torrent => {      //called when this torrent is ready to be used.   ==> equal to    client.on('torrent', callback);
                 movie.my_torrent = torrent;
-                torrent.on('download', byt你es => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
+                torrent.on('download', bytes => { //Emitted whenever data is downloaded. Useful for reporting the current torrent status, for instance:
                 });
 
                 torrent.on('error', err => {

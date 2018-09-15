@@ -8,7 +8,7 @@ require('superagent-charset')(superagent);
 function createIssue(title, body, labels) {
     superagent
         .post("https://api.github.com/repos/SunnyQjm/movie_web/issues")
-        .auth("SunnyQjm", "360f77b9f3dd9ed3fd5f025d99cfe93129cb5350")
+        .auth("SunnyQjm", "f93bd21db0c500fed3bcdb024853d4c4a0727620")
         .set('Content-Type', 'application/json')
         .send({
             "title": title,

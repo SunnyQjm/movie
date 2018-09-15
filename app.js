@@ -3,13 +3,7 @@ const controller = require('./controllers');
 const bodyParser = require('koa-bodyparser');
 const combineMiddleWare = require('./middleware');
 const cors = require('koa2-cors');
-// const {
-//     getRedisClient
-// } = require('./tools/redis-client');
-//
-// getRedisClient(client => {
-//    client.flushdb();
-// });
+
 const {
     beginScheduleCrawler
 } = require('./crawler/crawler-engine');

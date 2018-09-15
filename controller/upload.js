@@ -29,20 +29,6 @@ mkdir('static/thumbnails')
         console.log(`create path: ${path}`);
     });
 
-/**
-//  * 启动的时候，服务器开始seed服务器上现有的文件
-//  * @type {string}
-//  */
-// let root = path.join(__dirname, '../static/uploads/');
-// fs.readdir(root, (err, files) => {
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         files.forEach(ele => {
-//             seedFiles(path.join(root, ele));
-//         })
-//     }
-// });
 
 //文件上传配置
 let storage = multer.diskStorage({

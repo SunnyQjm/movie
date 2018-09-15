@@ -2,7 +2,6 @@ const WebTorrent = require('webtorrent');
 const path = require('path');
 const model = require('../model');
 const schedule = require('node-schedule');        //用户开启定时任务
-const seedFiles = require('../seed/seed-engine');
 const {
     getMd5
 } = require('../tools/md5');
@@ -92,32 +91,6 @@ function download(movie, client) {
                                 .catch(err => {
                                     console.log(err);
                                 })
-                            // seedFiles(targetSavePath)
-                            //     .then(torrent, md5 => {
-                            //         //下载完成则将其标识为已下载
-                            //         Movie.update({
-                            //             isDownload: 1,
-                            //             size: file.length,
-                            //             downloadPath: path.join(savePath, file.name),
-                            //             md5: md5,
-                            //         }, {
-                            //             where: {
-                            //                 id: movie.id
-                            //             }
-                            //         });
-                            //         Magnet.create({
-                            //             magnet: torrent.magnetURI,
-                            //         })
-                            //             .then(magnet => {
-                            //                 movie.addMagnet(magnet);
-                            //             })
-                            //             .catch(err => {
-                            //                 console.log(err);
-                            //             });
-                            //     })
-                            //     .catch(err => {
-                            //         console.log(err);
-                            //     });
                         }
                     });
 

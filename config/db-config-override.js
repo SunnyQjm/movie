@@ -1,8 +1,8 @@
 const config = {
-    // database: 'production',
-    // username: 'www',
-    // password: 'secret-password',
-    // host: '192.168.1.199'
+    database: 'movie_crawler',
+    username: 'movie',
+    password: '123456',
+    host: '210.30.100.171'
 };
 
 module.exports = config;

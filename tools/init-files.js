@@ -11,7 +11,6 @@ const {
 const {
     getMd5
 } = require('./md5');
-const seedFiles = require('../seed/seed-engine');
 
 let Movie = model.Movie;
 let MOVIE_ROOT = 'static/uploads/';
@@ -33,18 +32,16 @@ let SCREEN_SHOT_ROOT_CUR = '../static/thumbnails/';
                 console.log(md5);
                 getScreenShot(ele, path.join(__dirname, MOVIE_ROOT_CUR), path.join(__dirname, SCREEN_SHOT_ROOT_CUR))
                     .then(fns => {
-                        seedFiles(path.join(MOVIE_ROOT_CUR, ele), torrent => {
-                            if(fns.length > 0)
-                                Movie.create({
-                                    movieName: ele,
-                                    cover: SCREEN_SHOT_ROOT + fns[0],
-                                    md5: md5,
-                                    size: stat.size,
-                                    isDownload: 1,
-                                    downloadPath: MOVIE_ROOT + ele,
-                                    magnet: torrent.magnetURI,
-                                });
-                        })
+                        if (fns.length > 0)
+                            Movie.create({
+                                movieName: ele,
+                                cover: SCREEN_SHOT_ROOT + fns[0],
+                                md5: md5,
+                                size: stat.size,
+                                isDownload: 1,
+                                downloadPath: MOVIE_ROOT + ele,
+                                magnet: "",
+                            });
                     })
                     .catch(err => {
                         console.log(err);

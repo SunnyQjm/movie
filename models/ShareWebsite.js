@@ -20,7 +20,7 @@ const ShareWebsite = db.defineModel("share_website", {
     },
     category: {
         type: db.STRING(50),
-        defaultValue: '默认',
+        defaultValue: '',
     }
 });
 

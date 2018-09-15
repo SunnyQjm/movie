@@ -1,8 +1,8 @@
 const dbconfig = {
     database: 'movie_crawler',
-    username: 'root',
+    username: 'movie',
     password: '123456',
-    host: '39.106.138.103',
+    host: '127.0.0.1',
     port: '3306'
 };
 

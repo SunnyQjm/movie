@@ -164,16 +164,19 @@ function crawlerAPage(url, charset) {
         .set('accept-language', 'zh-CN,zh;q=0.9')
         .end((err, res) => {
             if (!err) {
+                console.log("成功");
                 let $ = cheerio.load(res.text);
                 let paths = [];
                 $('.ulink').each((index, link) => {
-                    paths.push('http://' + res.request.host + link.attribs.href)
+                    paths.push('https://' + res.request.host + link.attribs.href)
                 });
 
+                console.log(paths);
                 async.mapLimit(paths, 5, async function f(url) {
                     crawlerMovieAndSave(url, charset);
                 })
             } else {
+                console.log("错误");
                 console.log(err);
             }
         });
